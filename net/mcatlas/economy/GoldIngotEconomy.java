@@ -207,22 +207,18 @@ public class GoldIngotEconomy implements Economy {
     }
 
     public boolean createPlayerAccount(OfflinePlayer player) {
-        System.out.println("[Economy] Created player account player");
         return true;
     }
 
     public boolean createPlayerAccount(String playerName) {
-        System.out.println("[Economy] Created player account playerName");
         return this.createPlayerAccount(Bukkit.getOfflinePlayer((String)playerName));
     }
 
     public boolean createPlayerAccount(OfflinePlayer player, String world) {
-        System.out.println("[Economy] Created player account player, world");
         return this.createPlayerAccount(player);
     }
 
     public boolean createPlayerAccount(String playerName, String world) {
-        System.out.println("[Economy] Created player account playerName, world");
         return this.createPlayerAccount(playerName);
     }
 }
