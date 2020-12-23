@@ -1,18 +1,11 @@
 package net.mcatlas.economy.account;
 
-import java.util.concurrent.Callable;
 import net.mcatlas.economy.EconomyPlugin;
-import net.mcatlas.economy.account.Account;
-import net.mcatlas.economy.storage.AccountStorage;
 
 public class SimpleAccount implements Account {
 
     private final String holder;
     private int balance;
-
-    public SimpleAccount(String holder) {
-        this(holder, 0);
-    }
 
     public SimpleAccount(String holder, int balance) {
         this.holder = holder;
@@ -41,12 +34,7 @@ public class SimpleAccount implements Account {
     }
 
     private void save() {
-        try {
-            EconomyPlugin.get().getAccountStorage().store(this).call();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        EconomyPlugin.get().getAccountStorage().save(this).join();
     }
 
 }

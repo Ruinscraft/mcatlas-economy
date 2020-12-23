@@ -1,36 +1,25 @@
 package net.mcatlas.economy;
 
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-import net.mcatlas.economy.EconomyPlugin;
 import net.mcatlas.economy.account.Account;
 import net.mcatlas.economy.account.PlayerInventoryAccount;
-import net.mcatlas.economy.storage.AccountStorage;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GoldIngotEconomy implements Economy {
 
     private static Account getAccount(OfflinePlayer player) {
         if (player.isOnline()) {
-            return new PlayerInventoryAccount(Bukkit.getPlayer((UUID)player.getUniqueId()));
+            return new PlayerInventoryAccount(Bukkit.getPlayer(player.getUniqueId()));
+        } else if (!player.hasPlayedBefore()) {
+            return EconomyPlugin.get().getAccountStorage().query(player.getName()).join();
+        } else {
+            return null;
         }
-        if (!player.hasPlayedBefore()) {
-            String holder = player.getName();
-            try {
-                return EconomyPlugin.get().getAccountStorage().fetch(holder).call();
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
     }
 
     public boolean isEnabled() {
@@ -221,5 +210,6 @@ public class GoldIngotEconomy implements Economy {
     public boolean createPlayerAccount(String playerName, String world) {
         return this.createPlayerAccount(playerName);
     }
+
 }
 

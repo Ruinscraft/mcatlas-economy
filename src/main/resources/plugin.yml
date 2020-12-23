@@ -1,0 +1,9 @@
+main: ${mainClass}
+name: ${name}
+version: ${version}
+api-version: 1.13
+author: royalkingkb
+depend: [Vault]
+commands:
+  balance:
+    description: Show your current balance of gold ingots (in your inventory)

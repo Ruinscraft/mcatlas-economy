@@ -1,18 +1,10 @@
 package net.mcatlas.economy.account;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.function.Consumer;
 import net.mcatlas.economy.Worth;
-import net.mcatlas.economy.account.Account;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 
 public class PlayerInventoryAccount implements Account {
 
@@ -22,6 +14,11 @@ public class PlayerInventoryAccount implements Account {
     public PlayerInventoryAccount(Player player) {
         this.player = player;
         this.inventory = player.getInventory();
+    }
+
+    @Override
+    public String getHolder() {
+        return player.getName();
     }
 
     @Override
