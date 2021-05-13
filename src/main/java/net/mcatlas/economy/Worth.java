@@ -9,7 +9,7 @@ public enum Worth {
     final Material material;
     final int amount;
 
-    private Worth(Material material, int amount) {
+    Worth(Material material, int amount) {
         this.material = material;
         this.amount = amount;
     }

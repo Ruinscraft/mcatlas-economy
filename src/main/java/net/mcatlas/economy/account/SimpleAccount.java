@@ -34,7 +34,7 @@ public class SimpleAccount implements Account {
     }
 
     private void save() {
-        EconomyPlugin.get().getAccountStorage().save(this).join();
+        EconomyPlugin.get().getAccountStorage().save(this);
     }
 
 }

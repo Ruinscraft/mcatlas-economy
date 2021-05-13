@@ -34,8 +34,6 @@ public class EconomyPlugin extends JavaPlugin {
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
-
-        getCommand("balance").setExecutor(new BalanceCommand());
     }
 
     public void onDisable() {
@@ -53,7 +51,7 @@ public class EconomyPlugin extends JavaPlugin {
             return false;
         }
 
-        economy = (Economy)rsp.getProvider();
+        economy = (Economy) rsp.getProvider();
 
         return economy != null;
     }

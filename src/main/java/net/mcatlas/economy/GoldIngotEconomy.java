@@ -9,16 +9,22 @@ import org.bukkit.OfflinePlayer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class GoldIngotEconomy implements Economy {
 
-    private static Account getAccount(OfflinePlayer player) {
+    private static Map<String, Account> accountCache = new ConcurrentHashMap<>();
+
+    private static CompletableFuture<? extends Account> getAccount(OfflinePlayer player) {
         if (player.isOnline()) {
-            return new PlayerInventoryAccount(Bukkit.getPlayer(player.getUniqueId()));
-        } else if (!player.hasPlayedBefore()) {
-            return EconomyPlugin.get().getAccountStorage().query(player.getName()).join();
+            PlayerInventoryAccount pia = new PlayerInventoryAccount(Bukkit.getPlayer(player.getUniqueId()));
+            return CompletableFuture.completedFuture(pia);
+        } else if (accountCache.containsKey(player.getName())) {
+            return CompletableFuture.completedFuture(accountCache.get(player.getName()));
         } else {
-            return null;
+            return EconomyPlugin.get().getAccountStorage().query(player.getName());
         }
     }
 
@@ -39,7 +45,7 @@ public class GoldIngotEconomy implements Economy {
     }
 
     public String format(double amount) {
-        return (int)amount + " gold ingot" + (amount == 1.0 ? "" : "s");
+        return (int) amount + " gold ingot" + (amount == 1.0 ? "" : "s");
     }
 
     public String currencyNamePlural() {
@@ -51,23 +57,23 @@ public class GoldIngotEconomy implements Economy {
     }
 
     public boolean hasAccount(OfflinePlayer player) {
-        return player.hasPlayedBefore();
+        return true;
     }
 
     public boolean hasAccount(String playerName) {
-        return this.hasAccount(Bukkit.getOfflinePlayer((String)playerName));
+        return true;
     }
 
     public boolean hasAccount(OfflinePlayer player, String worldName) {
-        return this.hasAccount(player);
+        return true;
     }
 
     public boolean hasAccount(String playerName, String worldName) {
-        return this.hasAccount(playerName);
+        return true;
     }
 
     public double getBalance(OfflinePlayer player) {
-        Account account = GoldIngotEconomy.getAccount(player);
+        Account account = getAccount(player).join();
         if (account == null) {
             return 0.0;
         }
@@ -75,7 +81,7 @@ public class GoldIngotEconomy implements Economy {
     }
 
     public double getBalance(String playerName) {
-        return this.getBalance(Bukkit.getOfflinePlayer((String)playerName));
+        return this.getBalance(Bukkit.getOfflinePlayer((String) playerName));
     }
 
     public double getBalance(OfflinePlayer player, String world) {
@@ -103,19 +109,19 @@ public class GoldIngotEconomy implements Economy {
     }
 
     public EconomyResponse withdrawPlayer(OfflinePlayer player, double amount) {
-        Account account = GoldIngotEconomy.getAccount(player);
+        Account account = getAccount(player).join();
         if (account == null) {
             return new EconomyResponse(0.0, this.getBalance(player), EconomyResponse.ResponseType.FAILURE, "could not load account");
         }
-        if ((double)account.getBalance() < amount) {
+        if ((double) account.getBalance() < amount) {
             return new EconomyResponse(0.0, this.getBalance(player), EconomyResponse.ResponseType.FAILURE, "not enough gold ingots");
         }
-        account.subtract((int)amount);
+        account.subtract((int) amount);
         return new EconomyResponse(amount, this.getBalance(player), EconomyResponse.ResponseType.SUCCESS, "");
     }
 
     public EconomyResponse withdrawPlayer(String playerName, double amount) {
-        return this.withdrawPlayer(Bukkit.getOfflinePlayer((String)playerName), amount);
+        return this.withdrawPlayer(Bukkit.getOfflinePlayer(playerName), amount);
     }
 
     public EconomyResponse withdrawPlayer(String playerName, String world, double amount) {
@@ -127,16 +133,16 @@ public class GoldIngotEconomy implements Economy {
     }
 
     public EconomyResponse depositPlayer(OfflinePlayer player, double amount) {
-        Account account = GoldIngotEconomy.getAccount(player);
+        Account account = getAccount(player).join();
         if (account == null) {
             return new EconomyResponse(0.0, this.getBalance(player), EconomyResponse.ResponseType.FAILURE, "could not load account");
         }
-        account.add((int)amount);
+        account.add((int) amount);
         return new EconomyResponse(amount, this.getBalance(player), EconomyResponse.ResponseType.SUCCESS, "");
     }
 
     public EconomyResponse depositPlayer(String playerName, double amount) {
-        return this.depositPlayer(Bukkit.getOfflinePlayer((String)playerName), amount);
+        return this.depositPlayer(Bukkit.getOfflinePlayer(playerName), amount);
     }
 
     public EconomyResponse depositPlayer(String playerName, String world, double amount) {
@@ -192,7 +198,7 @@ public class GoldIngotEconomy implements Economy {
     }
 
     public List<String> getBanks() {
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     public boolean createPlayerAccount(OfflinePlayer player) {
@@ -200,15 +206,15 @@ public class GoldIngotEconomy implements Economy {
     }
 
     public boolean createPlayerAccount(String playerName) {
-        return this.createPlayerAccount(Bukkit.getOfflinePlayer((String)playerName));
+        return true;
     }
 
     public boolean createPlayerAccount(OfflinePlayer player, String world) {
-        return this.createPlayerAccount(player);
+        return true;
     }
 
     public boolean createPlayerAccount(String playerName, String world) {
-        return this.createPlayerAccount(playerName);
+        return true;
     }
 
 }

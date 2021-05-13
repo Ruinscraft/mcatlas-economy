@@ -1,9 +1,7 @@
 main: ${mainClass}
 name: ${name}
 version: ${version}
-api-version: 1.13
+api-version: 1.16
 author: royalkingkb
 depend: [Vault]
-commands:
-  balance:
-    description: Show your current balance of gold ingots (in your inventory)
+loadbefore: [Towny]

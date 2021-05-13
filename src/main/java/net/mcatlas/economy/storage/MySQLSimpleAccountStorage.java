@@ -40,7 +40,8 @@ public class MySQLSimpleAccountStorage implements SimpleAccountStorage {
     }
 
     @Override
-    public CompletableFuture<Void> save(SimpleAccount account) {
+    public synchronized CompletableFuture<Void> save(SimpleAccount account) {
+        System.out.println("Saving economy account for " + account.getHolder());
         return CompletableFuture.runAsync(() -> {
             try (Connection connection = getConnection()) {
                 try (PreparedStatement upsert = connection.prepareStatement("INSERT INTO simple_accounts (holder, balance) VALUES (?, ?) ON DUPLICATE KEY UPDATE balance = ?;")) {
@@ -56,7 +57,7 @@ public class MySQLSimpleAccountStorage implements SimpleAccountStorage {
     }
 
     @Override
-    public CompletableFuture<SimpleAccount> query(String holder) {
+    public synchronized CompletableFuture<SimpleAccount> query(String holder) {
         return CompletableFuture.supplyAsync(() -> {
             try (Connection connection = getConnection()) {
                 try (PreparedStatement query = connection.prepareStatement("SELECT balance FROM simple_accounts WHERE holder = ?;")) {
