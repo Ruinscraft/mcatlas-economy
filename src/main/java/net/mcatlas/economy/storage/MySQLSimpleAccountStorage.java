@@ -3,9 +3,11 @@ package net.mcatlas.economy.storage;
 import net.mcatlas.economy.account.SimpleAccount;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class MySQLSimpleAccountStorage implements SimpleAccountStorage {
+public class MySQLSimpleAccountStorage extends SimpleAccountStorage {
 
     private final String host;
     private final int port;
@@ -57,7 +59,7 @@ public class MySQLSimpleAccountStorage implements SimpleAccountStorage {
     }
 
     @Override
-    public synchronized CompletableFuture<SimpleAccount> query(String holder) {
+    protected synchronized CompletableFuture<SimpleAccount> _query(String holder) {
         return CompletableFuture.supplyAsync(() -> {
             try (Connection connection = getConnection()) {
                 try (PreparedStatement query = connection.prepareStatement("SELECT balance FROM simple_accounts WHERE holder = ?;")) {
@@ -75,6 +77,27 @@ public class MySQLSimpleAccountStorage implements SimpleAccountStorage {
             }
 
             return null;
+        });
+    }
+
+    @Override
+    protected CompletableFuture<List<SimpleAccount>> queryAll() {
+        return CompletableFuture.supplyAsync(() -> {
+            List<SimpleAccount> accounts = new ArrayList<>();
+            try (Connection connection = getConnection()) {
+                try (PreparedStatement query = connection.prepareStatement("SELECT * FROM simple_accounts;")) {
+                    try (ResultSet result = query.executeQuery()) {
+                        while (result.next()) {
+                            String holder = result.getString("holder").toLowerCase();
+                            int amount = result.getInt("balance");
+                            accounts.add(new SimpleAccount(holder, amount));
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return accounts;
         });
     }
 

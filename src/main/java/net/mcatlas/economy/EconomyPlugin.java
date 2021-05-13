@@ -34,6 +34,10 @@ public class EconomyPlugin extends JavaPlugin {
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
+
+        getLogger().info("Loading accounts into cache");
+        accountStorage.queryAllIntoCache().join();
+        getLogger().info("Loaded accounts into cache (" + accountStorage.getCacheSize() + ")");
     }
 
     public void onDisable() {
